@@ -1,0 +1,34 @@
+.key {
+  &__inner {
+    width: 100px;
+    height: 100px;
+    background: dimgrey;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(#fff, .5);
+    font-size: 52px;
+  }
+  &.hinted {
+    animation-name: hint;
+    animation-duration: .4s;
+    .key {
+      &__inner {
+        background: rosybrown;
+      }
+    }
+  }
+}
+
+@keyframes hint {
+  0% {
+    transform: none;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  0% {
+    transform: none;
+  }
+}

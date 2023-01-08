@@ -1,0 +1,19 @@
+<div class="floor">
+  <div class="floor__inner">
+    <div class="floor__title">Floor {{ LVL }} | Room {{ currentRoomIndex + 1 }} of {{ rooms.length }}</div>
+    <div class="room__entities">
+      <game-entities [room]="currentRoom"></game-entities>
+    </div>
+    <div class="keys">
+      <div class="keys__inner">
+        <game-keys-group [combination]="combination"></game-keys-group>
+      </div>
+    </div>
+    <div class="bar">
+      <game-player-bar></game-player-bar>
+    </div>
+    <div class="hints-bar">
+<!--      <game-hints #hints></game-hints>-->
+    </div>
+  </div>
+</div>

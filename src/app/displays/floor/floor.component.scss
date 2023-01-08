@@ -1,0 +1,41 @@
+.floor {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  &__title {
+    text-align: center;
+    font-size: 38px;
+    font-weight: bold;
+  }
+}
+
+.bar {
+  position: absolute;
+  width: calc(100vw - 100px);
+  left: 50px;
+  bottom: 50px;
+}
+
+.keys {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  bottom: 200px;
+}
+
+.hints-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-direction: column;
+  padding-bottom: 350px;
+}

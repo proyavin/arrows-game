@@ -1,0 +1,14 @@
+<div class="player-bar">
+  <div class="player-bar__inner">
+    <div class="player-bar__health">
+      <div class="player-bar__health__inner" [ngStyle]="{'width': percentHP + '%'}">
+        <span>{{ percentHP }}</span>
+      </div>
+    </div>
+    <div class="player-bar__experience">
+      <div class="player-bar__experience__inner" [ngStyle]="{'width': percentExp + '%'}">
+        <span>{{ stats?.lvl }} ({{ stats?.currentExp }}/{{ stats?.nextLevelExp }})</span>
+      </div>
+    </div>
+  </div>
+</div>

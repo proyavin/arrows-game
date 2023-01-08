@@ -1,0 +1,20 @@
+.wrapper {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+.floor__overlay {
+  width: 300vw;
+  height: 300vh;
+  background: cadetblue;
+  position: absolute;
+  top: 300vh;
+  left: 300vw;
+  transform: rotate(45deg);
+  transition: 2s all ease;
+  &.is--slide {
+    top: -300vh;
+    left: -300vw;
+  }
+}

@@ -1,0 +1,18 @@
+.menu {
+  &__buttons {
+    display: flex;
+    justify-content: center;
+    height: calc(100vh - 400px);
+    align-items: flex-end;
+    padding-bottom: 400px;
+  }
+  &__button {
+    width: 250px;
+    height: 70px;
+    text-align: center;
+    line-height: 70px;
+    background: blanchedalmond;
+    border: 5px solid #000;
+    font-size: 22px;
+  }
+}

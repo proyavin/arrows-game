@@ -1,0 +1,42 @@
+.player-bar {
+  &__health {
+    border: 5px solid black;
+    position: relative;
+    &__inner {
+      height: 40px;
+      background: red;
+      transition: .25s all ease;
+      span {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        text-align: center;
+        line-height: 40px;
+      }
+    }
+  }
+  &__experience {
+    border-left: 5px solid black;
+    border-right: 5px solid black;
+    border-bottom: 5px solid black;
+    position: relative;
+    &__inner {
+      height: 20px;
+      background: orange;
+      width: 75%;
+      span {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        text-align: center;
+        line-height: 20px;
+      }
+    }
+  }
+}

@@ -1,1 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+html,
+body,
+*,
+*::before,
+*::after {
+  user-select: none;
+}
+
+@font-face {
+  font-family: 'pixel_digivolve_cyrillicRg';
+  src: url('assets/fonts/3997-font-webfont.woff2') format('woff2'),
+  url('assets/fonts/3997-font-webfont.woff') format('woff');
+}
+
+body {
+  font-family: 'pixel_digivolve_cyrillicRg';
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
