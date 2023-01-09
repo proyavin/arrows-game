@@ -166,14 +166,20 @@
 //   }
 // }
 
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {FightService} from "../../fight.service";
-import {PlayerService} from "../../services/player.service";
-import {DungeonService, Room, RoomType} from "../../services/dungeon.service";
-import {ActivatedRoute, Router} from "@angular/router";
-import {Subject, takeUntil} from "rxjs";
-import {HintsComponent} from "../../components/ui/hints/hints.component";
-import {UtilsService} from "../../services/utils.service";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import {FightService} from '../../fight.service';
+import {PlayerService} from '../../services/player.service';
+import {DungeonService, Room, RoomType} from '../../services/dungeon.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Subject, takeUntil} from 'rxjs';
+import {HintsComponent} from '../../components/ui/hints/hints.component';
+import {UtilsService} from '../../services/utils.service';
 
 @Component({
   selector: 'game-floor',
@@ -201,41 +207,45 @@ export class FloorComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly utilsService: UtilsService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
     this.route.params.subscribe(data => {
       this.resetAllState();
-      this.LVL = parseInt(data["lvl"])
+      this.LVL = parseInt(data['lvl']);
       this.rooms = this.dungeonService.generateFloor(this.LVL);
       this.playerService.initPlayer();
 
-      this.currentRoom$.pipe(takeUntil(this.destroy$)).subscribe(
-        this.onNewRoom.bind(this)
-      )
+      this.currentRoom$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(this.onNewRoom.bind(this));
       this.fightService.combination$.pipe(takeUntil(this.destroy$)).subscribe(data => {
-        this.utilsService.log('COMBINATION', data.new ? 'NEW' : 'OLD')
-      })
-      this.fightService.combinationComplete.pipe(takeUntil(this.destroy$)).subscribe(data => {
-        if (data) {
-          this.handleHint();
-        } else {
-          this.utilsService.log('COMBINATION', 'COMPLETE FAIL')
-          this.takeDamage();
-        }
-      })
+        this.utilsService.log('COMBINATION', data.new ? 'NEW' : 'OLD');
+      });
+      this.fightService.combinationComplete
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(data => {
+          if (data) {
+            this.handleHint();
+          } else {
+            this.utilsService.log('COMBINATION', 'COMPLETE FAIL');
+            this.takeDamage();
+          }
+        });
       this.fightService.combinationMiss.pipe(takeUntil(this.destroy$)).subscribe(data => {
-        this.utilsService.log('COMBINATION', 'COMBINATION MISS')
+        this.utilsService.log('COMBINATION', 'COMBINATION MISS');
         this.handleMiss();
-      })
-      this.fightService.combinationTimerMiss.pipe(takeUntil(this.destroy$)).subscribe(data => {
-        this.utilsService.log('COMBINATION', 'TIMER MISS')
-      })
+      });
+      this.fightService.combinationTimerMiss
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(data => {
+          this.utilsService.log('COMBINATION', 'TIMER MISS');
+        });
 
       this.loadRoom();
       this.makeFloorClasses();
-    })
+    });
   }
 
   private resetAllState() {
@@ -245,22 +255,22 @@ export class FloorComponent implements OnInit {
   }
 
   private onNewRoom(data: Room): void {
-    console.log('on new room ===========')
-    console.log(data)
-    console.log('=======================')
+    console.log('on new room ===========');
+    console.log(data);
+    console.log('=======================');
     this.currentRoom = data;
-    this.nextCombination(5, 0)
-    this.cdr.detectChanges()
+    this.nextCombination(5, 0);
+    this.cdr.detectChanges();
   }
 
   private loadNextRoom() {
     this.currentRoomIndex++;
     this.loadRoom();
-    this.cdr.detectChanges()
+    this.cdr.detectChanges();
   }
 
   private loadNextFloor() {
-    this.router.navigate([`floor/${this.LVL + 1}`])
+    this.router.navigate([`floor/${this.LVL + 1}`]);
   }
 
   private loadRoom() {
@@ -289,7 +299,7 @@ export class FloorComponent implements OnInit {
   private handleMiss() {
     switch (this.currentRoom.type) {
       case RoomType.Enemy:
-        this.playerService.handleDamage(this.currentRoom.entities[0], null, null)
+        this.playerService.handleDamage(this.currentRoom.entities[0], null, null);
         break;
       case RoomType.Chest:
         //
@@ -319,12 +329,10 @@ export class FloorComponent implements OnInit {
   private hitEnemy() {
     this.playerService.handleHit(
       this.currentRoom.entities[0],
+      () => {},
       () => {
-
+        this.currentRoom.entities.shift();
       },
-      () => {
-        this.currentRoom.entities.shift()
-      }
     );
 
     if (this.currentRoom.entities.length) {
@@ -340,7 +348,7 @@ export class FloorComponent implements OnInit {
    * @private
    */
   private takeDamage() {
-    this.playerService.handleDamage(this.currentRoom.entities[0], null, null)
+    this.playerService.handleDamage(this.currentRoom.entities[0], null, null);
     if (this.currentRoom.entities.length) {
       this.nextCombination(5);
     } else {
@@ -356,18 +364,18 @@ export class FloorComponent implements OnInit {
     if (this.rooms[this.currentRoomIndex + 1]) {
       this.loadNextRoom();
     } else {
-      this.loadNextFloor()
+      this.loadNextFloor();
     }
   }
 
   private nextCombination(length: number, delay: number = 1400) {
-    console.log('NEW COMBINATION START', delay)
+    console.log('NEW COMBINATION START', delay);
     // const to = setTimeout(() => {
     //   clearTimeout(to)
     //   this.fightService.newCombination(length)
     //   console.log('NEW COMBINATION COMPLETE')
     // }, delay)
-    this.fightService.newCombination(length)
+    this.fightService.newCombination(length);
   }
 
   private makeFloorClasses() {
@@ -379,6 +387,6 @@ export class FloorComponent implements OnInit {
       cl = 'is--lvl3';
     }
 
-    this.floorClasses.push(cl)
+    this.floorClasses.push(cl);
   }
 }
