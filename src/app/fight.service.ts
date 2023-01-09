@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {FightDirection, KeyboardService} from "./keyboard.service";
 import {UtilsService} from "./services/utils.service";
-import {Subject, takeUntil} from "rxjs";
+import {Observable, ReplaySubject, Subject, takeUntil} from "rxjs";
 import {gsap} from "gsap";
 
 export type CombinationItem = {
@@ -20,11 +20,13 @@ export type Combination = {
 })
 export class FightService {
   combination!: Combination;
-  combination$ = new Subject<Combination>()
+  combination$ = new ReplaySubject<Combination>()
+  combinationUpdate = new Subject<Combination>();
   combinationMiss = new Subject<void>()
-  combinationComplete = new Subject<void>()
+  combinationComplete = new Subject<boolean>()
   combinationTimer = new Subject<number>()
   combinationTimerMiss = new Subject<void>()
+  combinationRemoved = new Subject<void>()
 
   index = 0;
 
@@ -35,52 +37,32 @@ export class FightService {
     private readonly keyboardService: KeyboardService,
   ) {}
 
-  newCombination(length: number, oneAttemptMode: boolean = false, time: number = 3000) {
+  newCombination(length: number, time: number = 3000) {
+    console.log('init new combination')
     this.index = 0;
     this.combination = this.generateCombination(length, time);
-    const destroy$ = new Subject();
-    const value = {width: 100}
+    const destroy$ = new Subject<void>();
 
-    if (this.animation) {
-      this.animation.kill();
-    }
-
-    this.animation = gsap.to(value, {
-      ease: 'linear',
-      width: 0,
-      duration: time / 1000,
-      onUpdate: () => {
-        this.combinationTimer.next(value.width)
-      },
-      onComplete: () => {
-        this.combinationTimerMiss.next();
-      }
+    this.playAnimation(time).pipe(takeUntil(destroy$)).subscribe(() => {
+      this.combinationTimerMiss.next();
+      this.completeCombination(false, destroy$);
     })
-    this.animation.play()
 
     this.keyboardService.fightKey.pipe(takeUntil(destroy$)).subscribe(data => {
+      if(this.index + 1 > this.combination.items.length) return;
+
+      this.combination.new = false;
       if (this.combination.items[this.index].direction === data) {
-        this.combination.items[this.index].hinted = true
-        this.index++
+        this.hint();
       } else {
-        this.missCombination();
+        console.log('miss')
+        this.missHint();
       }
 
-      if (oneAttemptMode) {
-        if (this.index === length) {
-          destroy$.next(true)
-          destroy$.complete()
-          this.combinationComplete.next();
-        }
-      } else {
-        this.combination$.next(this.combination)
-        if (this.index === length) {
-          destroy$.next(true)
-          destroy$.complete()
-          this.combinationComplete.next();
-        }
-      }
-    })
+      this.combination$.next(this.combination)
+      if (this.index >= length) this.completeCombination(true, destroy$);
+    });
+
     this.combination$.next(this.combination)
   }
 
@@ -115,9 +97,57 @@ export class FightService {
     }
   }
 
-  public missCombination() {
+  public removeCombination() {
+    this.combinationRemoved.next();
+  }
+
+  private playAnimation(time: number) {
+    const value = {width: 100}
+
+    return new Observable(subscriber => {
+      this.checkAndRemoveAnimation()
+      const to = setTimeout(() => {
+        clearTimeout(to)
+        this.animation = gsap.to(value, {
+          ease: 'linear',
+          width: 0,
+          duration: time / 1000,
+          onUpdate: () => {
+            this.combinationTimer.next(value.width)
+          },
+          onComplete: () => {
+            subscriber.next();
+            subscriber.complete();
+          }
+        })
+        this.animation.play()
+      }, 0)
+    })
+  }
+
+  private checkAndRemoveAnimation() {
+    if (!this.animation) return;
+
+    this.animation.pause();
+    this.animation.kill();
+    this.animation = null;
+  }
+
+  private missHint() {
     this.combination = this.clearCombination()
     this.index = 0
     this.combinationMiss.next();
+  }
+
+  private hint() {
+    this.combination.items[this.index].hinted = true
+    this.index++
+  }
+
+  private completeCombination(value: boolean, destroyer$: Subject<void>) {
+    this.combinationComplete.next(value);
+    this.checkAndRemoveAnimation()
+    destroyer$.next()
+    destroyer$.complete()
   }
 }

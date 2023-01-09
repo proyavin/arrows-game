@@ -26,7 +26,7 @@ const items: Enemy[] = [
     hp: 15,
     damage: 30,
     minFloor: 10,
-    maxFloor: 30
+    maxFloor: 350
   }
 ]
 

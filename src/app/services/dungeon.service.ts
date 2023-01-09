@@ -31,26 +31,27 @@ export class DungeonService {
   }
 
   public generateFloor(floor: number): Room[] {
+    console.log(floor)
     const rooms: Room[] = [];
     const minRooms = DEFAULT_MIN_ROOMS + floor;
     const maxRooms = DEFAULT_MAX_ROOMS + floor;
     const finalRoomsCount = this.utilsService.randomInt(minRooms, maxRooms);
 
-    // for(let i = 0; i < finalRoomsCount; i++) {
-    //   rooms.push({
-    //     type: RoomType.Enemy,
-    //     entities: this.generateEnemyRoom(floor)
-    //   })
-    // }
+    for(let i = 0; i < finalRoomsCount; i++) {
+      rooms.push({
+        type: RoomType.Enemy,
+        entities: this.generateEnemyRoom(floor)
+      })
+    }
 
-    rooms.push({
-      type: RoomType.Chest,
-      entities: this.generateChestRoom()
-    })
-    rooms.push({
-      type: RoomType.Enemy,
-      entities: this.generateEnemyRoom(1)
-    })
+    // rooms.push({
+    //   type: RoomType.Chest,
+    //   entities: this.generateChestRoom()
+    // })
+    // rooms.push({
+    //   type: RoomType.Enemy,
+    //   entities: this.generateEnemyRoom(1)
+    // })
 
     return rooms;
   }
@@ -69,8 +70,6 @@ export class DungeonService {
     const availableEnemies = DB.Enemies.filter(enemy => {
       return floor >= enemy.minFloor && floor <= enemy.maxFloor
     })
-
-    // 10 >= 25 && 30 <= 10
 
     for(let i = 0; i < enemiesCount; i++) {
       const enemyIndex = this.utilsService.randomInt(0, availableEnemies.length - 1)

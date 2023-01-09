@@ -1,4 +1,4 @@
-<div class="floor">
+<div class="floor" [ngClass]="floorClasses">
   <div class="floor__inner">
     <div class="floor__title">Floor {{ LVL }} | Room {{ currentRoomIndex + 1 }} of {{ rooms.length }}</div>
     <div class="room__entities">
@@ -6,7 +6,7 @@
     </div>
     <div class="keys">
       <div class="keys__inner">
-        <game-keys-group [combination]="combination"></game-keys-group>
+        <game-keys-group></game-keys-group>
       </div>
     </div>
     <div class="bar">

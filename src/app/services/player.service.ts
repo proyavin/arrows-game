@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {ReplaySubject, Subject} from "rxjs";
+import {RoomEntity} from "./dungeon.service";
 
 export type PlayerStats = {
   maxHP: number;
@@ -7,6 +8,7 @@ export type PlayerStats = {
   nextLevelExp: number;
   currentExp: number;
   lvl: number;
+  damage: number;
 }
 
 @Injectable({
@@ -54,7 +56,31 @@ export class PlayerService {
       currentHP: this.currentHP,
       lvl: this.lvl,
       nextLevelExp: this.nextLevelExp,
-      currentExp: this.currentExp
+      currentExp: this.currentExp,
+      damage: 10,
     })
+  }
+
+  public handleHit(enemy: RoomEntity, onAlive: any, onDied: any) {
+    // TODO FIX
+    // @ts-ignore
+    enemy.hp -= 10
+
+    // @ts-ignore
+    if (enemy.hp <= 0) {
+      this.addExp(30);
+
+      if (typeof onDied === "function") {
+        onDied()
+      }
+    } else {
+      if (typeof onAlive === "function") {
+        onAlive()
+      }
+    }
+  }
+
+  public handleDamage(enemy: RoomEntity, onAlive: any, onDied: any) {
+    this.minusHP(enemy.obj.damage)
   }
 }

@@ -9,4 +9,8 @@ export class UtilsService {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
+
+  log(level: string, msg: string) {
+    // console.log(level, msg)
+  }
 }

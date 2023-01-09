@@ -1,5 +1,5 @@
 <div class="keys-group">
-  <div class="keys-group__inner">
+  <div class="keys-group__inner" *ngIf="combination">
     <div class="keys-group__item" *ngFor="let item of combination.items">
       <game-key [item]="item"></game-key>
     </div>

@@ -2,6 +2,17 @@
   position: relative;
   width: 100vw;
   height: 100vh;
+  background-size: 64px 64px;
+  background-repeat: repeat;
+  &.is--lvl1 {
+    background-image: url('/assets/textures/floor1-15.jpg');
+  }
+  &.is--lvl2 {
+    background-image: url('/assets/textures/floor15-30.jpg');
+  }
+  &.is--lvl3 {
+    background-image: url('/assets/textures/floor30-60.jpg');
+  }
   &__title {
     text-align: center;
     font-size: 38px;
