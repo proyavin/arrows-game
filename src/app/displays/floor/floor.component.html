@@ -1,6 +1,11 @@
 <div class="floor" [ngClass]="floorClasses">
   <div class="floor__inner">
-    <div class="floor__title">Floor {{ LVL }} | Room {{ currentRoomIndex + 1 }} of {{ rooms.length }}</div>
+    <div class="floor__title">
+      Floor {{ LVL }} | Room {{ currentRoomIndex + 1 }} of {{ rooms.length }}
+    </div>
+    <div class="floor__combo" *ngIf="combo && combo >= 5">
+      <small>COMBO</small><span>x{{ combo }}</span>
+    </div>
     <div class="room__entities">
       <game-entities [room]="currentRoom"></game-entities>
     </div>
@@ -13,7 +18,20 @@
       <game-player-bar></game-player-bar>
     </div>
     <div class="hints-bar">
-<!--      <game-hints #hints></game-hints>-->
+      <!--      <game-hints #hints></game-hints>-->
+    </div>
+  </div>
+</div>
+<div class="pause" *ngIf="state === states.Pause">
+  <div class="pause__inner">
+    Pause
+    <div class="menu__buttons">
+      <div class="menu__buttons__col">
+        <button [ngClass]="{'is--selected': activeButton === buttons.Resume}">
+          Resume
+        </button>
+        <button [ngClass]="{'is--selected': activeButton === buttons.Exit}">Exit</button>
+      </div>
     </div>
   </div>
 </div>

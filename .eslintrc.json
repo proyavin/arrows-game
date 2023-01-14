@@ -18,14 +18,7 @@
         "plugin:prettier/recommended"
       ],
       "rules": {
-        "@angular-eslint/component-selector": [
-          "error",
-          {
-            "type": "element",
-            "prefix": "app",
-            "style": "kebab-case"
-          }
-        ],
+        "@angular-eslint/component-selector": "off",
         "@typescript-eslint/consistent-type-imports": "off",
         "@typescript-eslint/naming-convention": [
           "error",

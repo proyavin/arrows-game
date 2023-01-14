@@ -1,7 +1,28 @@
 <div class="menu">
   <div class="menu__inner">
     <div class="menu__buttons">
-      <div class="menu__button">Play</div>
+      <div class="menu__buttons__col">
+        <button [ngClass]="{'is--selected': activeButton === buttons.Achievements}">
+          Achievements
+        </button>
+        <div class="button-ghost"></div>
+      </div>
+      <div class="menu__buttons__col">
+        <button [ngClass]="{'is--selected': activeButton === buttons.Play}">Play</button>
+        <button [ngClass]="{'is--selected': activeButton === buttons.Settings}">
+          Settings
+        </button>
+        <button [ngClass]="{'is--selected': activeButton === buttons.Stats}">
+          Stats
+        </button>
+        <button [ngClass]="{'is--selected': activeButton === buttons.Exit}">Exit</button>
+      </div>
+      <div class="menu__buttons__col">
+        <button [ngClass]="{'is--selected': activeButton === buttons.Inventory}">
+          Inventory
+        </button>
+        <div class="button-ghost"></div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {FightDirection} from "../../../keyboard.service";
-import {CombinationItem} from "../../../fight.service";
+import {FightDirection} from "../../../services/keyboard.service";
+import {CombinationItem} from "../../../services/fight.service";
 
 @Component({
   selector: 'game-key',
@@ -15,16 +15,16 @@ export class KeyComponent implements OnInit {
   ngOnInit() {
     switch (this.item.direction) {
       case FightDirection.Up:
-        this.arrow = '↑';
+        this.arrow = 'is--up';
         break;
       case FightDirection.Down:
-        this.arrow = '↓';
+        this.arrow = 'is--down';
         break;
       case FightDirection.Left:
-        this.arrow = '←';
+        this.arrow = 'is--left';
         break;
       case FightDirection.Right:
-        this.arrow = '→';
+        this.arrow = 'is--right';
         break;
     }
   }

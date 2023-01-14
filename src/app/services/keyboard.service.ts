@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import {Subject} from "rxjs";
+import {Injectable} from '@angular/core';
+import {Subject} from 'rxjs';
 
 export enum KeyboardKey {
   W = 'KeyW',
@@ -10,21 +10,23 @@ export enum KeyboardKey {
   Down = 'ArrowDown',
   Left = 'ArrowLeft',
   Right = 'ArrowRight',
+  Escape = 'Escape',
+  Enter = 'Enter'
 }
 
 export enum FightDirection {
   Left,
   Right,
   Down,
-  Up
+  Up,
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KeyboardService {
-
-  fightKey = new Subject<FightDirection>()
+  fightKey = new Subject<FightDirection>();
+  key = new Subject<any>();
 
   constructor() {}
 
@@ -49,6 +51,8 @@ export class KeyboardService {
         direction = FightDirection.Right;
         break;
     }
+
+    this.key.next(keyCode);
 
     if (direction !== null) this.fightKey.next(direction);
   }

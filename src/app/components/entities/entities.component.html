@@ -1,8 +1,7 @@
 <div class="entities">
   <div class="entities__inner">
     <div class="entity" *ngFor="let entity of room.entities">
-      {{ entity.obj.title }}<br>
-      <small>{{ entity.hp }}/{{ entity.obj.hp }}</small>
+      <game-enemy [enemy]="entity"></game-enemy>
     </div>
   </div>
 </div>

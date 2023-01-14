@@ -2,20 +2,31 @@
   &__inner {
     width: 100px;
     height: 100px;
-    background: dimgrey;
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: rgba(#fff, .5);
     font-size: 52px;
+    background: url('/assets/textures/arrows.png');
+    background-size: 380px;
+    background-position: 2px 2px;
+  }
+  &.is--up {
+    transform: rotate(-90deg);
+  }
+  &.is--left {
+    transform: rotate(180deg);
+  }
+  &.is--down {
+    transform: rotate(90deg);
   }
   &.hinted {
-    animation-name: hint;
-    animation-duration: .4s;
+    //animation-name: hint;
+    //animation-duration: .4s;
     .key {
       &__inner {
-        background: rosybrown;
+        background-position: 2px 97px;
       }
     }
   }

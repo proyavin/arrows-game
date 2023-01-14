@@ -1,0 +1,12 @@
+<div class="enemy" [ngClass]="['is--code' + enemy.obj.code]">
+  <div class="enemy__inner">
+    <div class="enemy__wrapper">
+      <div class="enemy__bar">
+        <div class="enemy__bar__inner">
+          <div class="enemy__bar__name">{{ enemy.obj.title }}</div>
+          <div class="enemy__bar__health">{{ enemy.hp }}/{{ enemy.obj.hp }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

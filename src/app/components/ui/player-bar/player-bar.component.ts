@@ -19,7 +19,6 @@ export class PlayerBarComponent implements OnInit {
       this.stats = data;
       this.percentHP = this.stats.currentHP / this.stats.maxHP * 100
       this.percentExp = this.stats?.currentExp / this.stats?.nextLevelExp * 100
-      console.log(this.stats)
       this.cdr.detectChanges()
     })
   }

@@ -1,5 +1,3 @@
-<div class="key" [ngClass]="{'hinted': item.hinted}">
-  <div class="key__inner">
-    {{ arrow }}
-  </div>
+<div class="key" [ngClass]="[arrow, item.hinted ? 'hinted' : '']">
+  <div class="key__inner"></div>
 </div>

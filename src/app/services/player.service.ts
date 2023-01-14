@@ -1,6 +1,8 @@
-import {Injectable} from "@angular/core";
-import {ReplaySubject, Subject} from "rxjs";
-import {RoomEntity} from "./dungeon.service";
+import {Injectable} from '@angular/core';
+import {ReplaySubject, Subject} from 'rxjs';
+import {RoomEntity} from './dungeon.service';
+import {Enemy} from '../db/enemies';
+import {UtilsService} from './utils.service';
 
 export type PlayerStats = {
   maxHP: number;
@@ -9,29 +11,36 @@ export type PlayerStats = {
   currentExp: number;
   lvl: number;
   damage: number;
-}
+};
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PlayerService {
-  private maxHP = 100;
-  private currentHP = this.maxHP;
-  private nextLevelExp = 50;
-  private currentExp = 0;
-  private lvl = 1;
-  public playerStats = new ReplaySubject<PlayerStats>()
-  public died = new Subject<void>()
+  private playerStat: PlayerStats = {
+    maxHP: 100,
+    currentHP: 100,
+    nextLevelExp: 50,
+    currentExp: 0,
+    lvl: 1,
+    damage: 10,
+  };
+  public playerStats = new ReplaySubject<PlayerStats>();
+  public died = new Subject<void>();
+
+  constructor(private readonly utilsService: UtilsService) {}
 
   public initPlayer() {
     this.updatePlayerStats();
   }
 
-  public minusHP(hp: number): void {
-    const percent = this.currentHP - hp
-    this.currentHP = percent <= 0 ? 0 : percent;
+  public minusHP(enemy: Enemy): void {
+    const percent =
+      this.playerStat.currentHP -
+      this.utilsService.mathPlayerDamage(this.playerStat, enemy);
+    this.playerStat.currentHP = percent <= 0 ? 0 : percent;
 
-    if (this.currentHP <= 0) {
+    if (this.playerStat.currentHP <= 0) {
       this.died.next();
     }
 
@@ -39,48 +48,41 @@ export class PlayerService {
   }
 
   public addExp(exp: number): void {
-    this.currentExp += exp;
+    this.playerStat.currentExp += exp;
 
-    if (this.currentExp >= this.nextLevelExp) {
-      this.lvl++;
-      this.currentExp = this.currentExp - this.nextLevelExp;
-      this.nextLevelExp = this.lvl * 50
+    if (this.playerStat.currentExp >= this.playerStat.nextLevelExp) {
+      this.playerStat.lvl++;
+      this.playerStat.currentExp =
+        this.playerStat.currentExp - this.playerStat.nextLevelExp;
+      this.playerStat.nextLevelExp = this.playerStat.lvl * 50;
     }
 
     this.updatePlayerStats();
   }
 
   private updatePlayerStats() {
-    this.playerStats.next({
-      maxHP: this.maxHP,
-      currentHP: this.currentHP,
-      lvl: this.lvl,
-      nextLevelExp: this.nextLevelExp,
-      currentExp: this.currentExp,
-      damage: 10,
-    })
+    this.playerStats.next(this.playerStat);
   }
 
   public handleHit(enemy: RoomEntity, onAlive: any, onDied: any) {
-    // TODO FIX
     // @ts-ignore
-    enemy.hp -= 10
+    enemy.hp -= this.utilsService.mathHintDamage(this.playerStat, enemy);
 
     // @ts-ignore
     if (enemy.hp <= 0) {
-      this.addExp(30);
+      this.addExp(this.utilsService.mathPlayerExp(this.playerStat, enemy.obj));
 
-      if (typeof onDied === "function") {
-        onDied()
+      if (typeof onDied === 'function') {
+        onDied();
       }
     } else {
-      if (typeof onAlive === "function") {
-        onAlive()
+      if (typeof onAlive === 'function') {
+        onAlive();
       }
     }
   }
 
   public handleDamage(enemy: RoomEntity, onAlive: any, onDied: any) {
-    this.minusHP(enemy.obj.damage)
+    this.minusHP(enemy.obj);
   }
 }

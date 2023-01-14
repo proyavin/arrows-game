@@ -166,20 +166,22 @@
 //   }
 // }
 
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import {FightService} from '../../fight.service';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {FightService} from '../../services/fight.service';
 import {PlayerService} from '../../services/player.service';
 import {DungeonService, Room, RoomType} from '../../services/dungeon.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subject, takeUntil} from 'rxjs';
 import {HintsComponent} from '../../components/ui/hints/hints.component';
 import {UtilsService} from '../../services/utils.service';
+import {KeyboardKey, KeyboardService} from '../../services/keyboard.service';
+import {State, StateService} from '../../services/state.service';
+import {ControlsPosition, MenuService} from '../../services/menu.service';
+
+export enum PauseButton {
+  Resume = 'resume',
+  Exit = 'exit',
+}
 
 @Component({
   selector: 'game-floor',
@@ -187,7 +189,7 @@ import {UtilsService} from '../../services/utils.service';
   styleUrls: ['./floor.component.scss'],
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FloorComponent implements OnInit {
+export class FloorComponent implements OnInit, OnDestroy {
   @ViewChild(HintsComponent) hints!: HintsComponent;
 
   public floorClasses: string[] = [];
@@ -196,6 +198,12 @@ export class FloorComponent implements OnInit {
   public currentRoom$ = new Subject<Room>();
   public currentRoom!: Room;
   public currentRoomIndex = 0;
+  public state: State;
+  public states: any = State;
+  public combo = 0;
+  public buttons = PauseButton;
+  public activeButton: PauseButton = PauseButton.Resume;
+  public positions: {[key in PauseButton]?: ControlsPosition<PauseButton>};
 
   private readonly destroy$ = new Subject<void>();
   private readonly combinationDestroy$ = new Subject<void>();
@@ -208,9 +216,37 @@ export class FloorComponent implements OnInit {
     private readonly router: Router,
     private readonly utilsService: UtilsService,
     private readonly cdr: ChangeDetectorRef,
-  ) {}
+    private readonly keyboardService: KeyboardService,
+    private readonly stateService: StateService,
+    private readonly menuService: MenuService,
+  ) {
+    this.state = this.stateService.state;
+    this.positions = {
+      [PauseButton.Resume]: {
+        bottom: PauseButton.Exit,
+      },
+      [PauseButton.Exit]: {
+        top: PauseButton.Resume,
+      },
+    };
+  }
 
   ngOnInit() {
+    this.menuService
+      .make<PauseButton>(this.positions, this.activeButton, () => {
+        switch (this.activeButton) {
+          case PauseButton.Resume:
+            this.onResume();
+            break;
+          case PauseButton.Exit:
+            this.onExit();
+            break;
+        }
+      })
+      .subscribe(data => {
+        this.activeButton = data;
+      });
+
     this.route.params.subscribe(data => {
       this.resetAllState();
       this.LVL = parseInt(data['lvl']);
@@ -228,6 +264,7 @@ export class FloorComponent implements OnInit {
         .subscribe(data => {
           if (data) {
             this.handleHint();
+            this.combo += 1;
           } else {
             this.utilsService.log('COMBINATION', 'COMPLETE FAIL');
             this.takeDamage();
@@ -236,15 +273,44 @@ export class FloorComponent implements OnInit {
       this.fightService.combinationMiss.pipe(takeUntil(this.destroy$)).subscribe(data => {
         this.utilsService.log('COMBINATION', 'COMBINATION MISS');
         this.handleMiss();
+        this.clearCombo();
       });
       this.fightService.combinationTimerMiss
         .pipe(takeUntil(this.destroy$))
         .subscribe(data => {
           this.utilsService.log('COMBINATION', 'TIMER MISS');
+          this.clearCombo();
         });
+      this.keyboardService.key.pipe(takeUntil(this.destroy$)).subscribe(data => {
+        if (data === KeyboardKey.Escape) {
+          this.stateService.toggleState();
+        }
+      });
+      this.stateService.state$.pipe(takeUntil(this.destroy$)).subscribe(data => {
+        this.state = data;
+        if (this.state === State.Play) {
+          this.resumeFloor();
+        } else {
+          this.pauseFloor();
+        }
+      });
 
       this.loadRoom();
       this.makeFloorClasses();
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy();
+  }
+
+  onResume() {
+    this.stateService.play();
+  }
+
+  onExit() {
+    this.router.navigate([`/`], {replaceUrl: true}).then(() => {
+      this.stateService.play();
     });
   }
 
@@ -255,11 +321,14 @@ export class FloorComponent implements OnInit {
   }
 
   private onNewRoom(data: Room): void {
-    console.log('on new room ===========');
-    console.log(data);
-    console.log('=======================');
     this.currentRoom = data;
     this.nextCombination(5, 0);
+    this.fightService.pause()
+    const to = setTimeout(() => {
+      clearTimeout(to)
+      this.fightService.resume()
+      this.cdr.detectChanges();
+    }, 3000)
     this.cdr.detectChanges();
   }
 
@@ -270,7 +339,7 @@ export class FloorComponent implements OnInit {
   }
 
   private loadNextFloor() {
-    this.router.navigate([`floor/${this.LVL + 1}`]);
+    this.router.navigate([`floor/${this.LVL + 1}`], {replaceUrl: true});
   }
 
   private loadRoom() {
@@ -362,6 +431,7 @@ export class FloorComponent implements OnInit {
    */
   private move() {
     if (this.rooms[this.currentRoomIndex + 1]) {
+      console.log('room cleared');
       this.loadNextRoom();
     } else {
       this.loadNextFloor();
@@ -369,7 +439,6 @@ export class FloorComponent implements OnInit {
   }
 
   private nextCombination(length: number, delay: number = 1400) {
-    console.log('NEW COMBINATION START', delay);
     // const to = setTimeout(() => {
     //   clearTimeout(to)
     //   this.fightService.newCombination(length)
@@ -388,5 +457,23 @@ export class FloorComponent implements OnInit {
     }
 
     this.floorClasses.push(cl);
+  }
+
+  private resumeFloor() {
+    this.fightService.resume();
+  }
+
+  private pauseFloor() {
+    this.fightService.pause();
+  }
+
+  private clearCombo() {
+    this.combo = 0;
+  }
+
+  private destroy() {
+    console.log('destory')
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
